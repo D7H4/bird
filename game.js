@@ -14,7 +14,7 @@ let bird = {
     gravity: 0.5,
     jumpStrength: -10,
     currentImage: new Image(),
-    frames: ["bird1.png", "bird2.png"], // 两张图片路径
+    frames: ["bird1.png", "bird2.png"], // 图片路径直接使用文件名
     frameIndex: 0,
     frameRate: 10,
     frameCounter: 0,
