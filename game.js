@@ -4,72 +4,58 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// 角色属性
-let bird = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+// 定義馬力歐的屬性
+let mario = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 100,
     width: 50,
-    height: 50,
-    velocityY: 0,
+    height: 70,
+    velocity: 0,
     gravity: 0.5,
-    jumpStrength: -10,
-    currentImage: new Image(),
-    frames: ["bird1.png", "bird2.png"], // 图片路径直接使用文件名
-    frameIndex: 0,
-    frameRate: 10,
-    frameCounter: 0,
+    jumpCount: 0, // 記錄跳躍次數
+    maxJumps: 2, // 最大允許的跳躍次數
+    currentImage: null,
+    images: {
+        idle: new Image(),
+        jump: new Image()
+    }
 };
 
-// 设置初始图片
-bird.currentImage.src = bird.frames[0];
+// 加載馬力歐圖片
+mario.images.idle.src = "mario_idle.png"; // 站立圖
+mario.images.jump.src = "mario_jump.png"; // 跳躍圖
+mario.currentImage = mario.images.idle; // 預設為站立圖
 
-// 动态调整画布尺寸
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
-// 更新角色动画帧
-function updateFrame() {
-    bird.frameCounter++;
-    if (bird.frameCounter >= bird.frameRate) {
-        bird.frameCounter = 0;
-        bird.frameIndex = (bird.frameIndex + 1) % bird.frames.length;
-        bird.currentImage.src = bird.frames[bird.frameIndex];
-    }
+function drawMario() {
+    ctx.drawImage(mario.currentImage, mario.x, mario.y, mario.width, mario.height);
 }
 
-// 游戏主循环
 function update() {
-    // 更新重力和位置
-    bird.velocityY += bird.gravity;
-    bird.y += bird.velocityY;
+    mario.velocity += mario.gravity;
+    mario.y += mario.velocity;
 
-    // 碰到地面时复位
-    if (bird.y + bird.height > canvas.height) {
-        bird.y = canvas.height - bird.height;
-        bird.velocityY = 0;
+    // 碰到地面時重置跳躍
+    if (mario.y + mario.height > canvas.height) {
+        mario.y = canvas.height - mario.height;
+        mario.velocity = 0;
+        mario.jumpCount = 0; // 重置跳躍次數
+        mario.currentImage = mario.images.idle; // 切回站立圖
     }
 
-    // 碰到顶部时限制
-    if (bird.y < 0) {
-        bird.y = 0;
-        bird.velocityY = 0;
-    }
-
-    // 清空画布并绘制角色
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bird.currentImage, bird.x - bird.width / 2, bird.y, bird.width, bird.height);
-
-    updateFrame();
+    // 清空畫布並繪製 Mario
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMario();
     requestAnimationFrame(update);
 }
 
-// 监听点击事件控制跳跃
+// 點擊跳躍
 canvas.addEventListener("click", () => {
-    bird.velocityY = bird.jumpStrength;
+    if (mario.jumpCount < mario.maxJumps) {
+        mario.velocity = -10; // 跳躍力量
+        mario.jumpCount++; // 增加跳躍次數
+        mario.currentImage = mario.images.jump; // 切換到跳躍圖
+    }
 });
 
-// 启动游戏
+// 開始遊戲循環
 update();
